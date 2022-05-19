@@ -1,8 +1,8 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-contract realEstate {
-    // Declare state variables in this section
+contract Kenobi {
+    //  state variables in this section
 
     uint8 public avgBlockTime; // Avg block time in seconds.
     uint8 private decimals; // Decimals of our Shares. Has to be 0.
@@ -12,7 +12,7 @@ contract realEstate {
     uint256 private constant MAX_UINT256 = 2**256 - 1; // Very large number.
     uint256 public totalSupply; // By default 100 for 100% ownership. Can be changed.
     uint256 public totalSupply2; // Only Ether incoming of multiples of this variable will be allowed. This way we can have two itterations of divisions through totalSupply without remainder. There is no Float in ETH, so we need to prevent remainders in division. E.g. 1. iteration (incoming ether value = MultipleOfTokenSupplyPower2) / totalSupply * uint (desired percentage); 2nd iteration ( ether value = MultipleOfTokenSupplyPower) / totalSupply * uint (desired percentage); --> no remainder
-    uint256 public rentPer30Day; // rate charged by mainPropertyOwner for 30 Days of rent.
+    uint256 public amountPer30Day; // rate charged by mainInvoiceOwner for 30 Days of rent.
     uint256 public accumulated; // Globally accumulated funds not distributed to stakeholder yet excluding gov.
     uint256 public blocksPer30Day; // Calculated from avgBlockTime. Acts as tiem measurement for rent.
     uint256 public rentalBegin; // begin of rental(in blocknumber)
@@ -21,12 +21,12 @@ contract realEstate {
 
     string public name; // The name of our house (token). Can be determined in Constructor _propertyID
     string public symbol; // The Symbol of our house (token). Can be determined in Constructor _propertySymbol
-
+    address public smallBusiness; // Address of the Small Business that owns this Invoice.
     address public gov; // Government will deploy contract.
-    address public mainPropertyOwner; // mainPropertyOwner can change enterprise.Can become mainPropertyOwner by claimOwnership if owning > 51% of token.
+    address public mainInvoiceOwner; // mainInvoiceOwner can change enterprise.Can become mainInvoiceOwner by claimOwnership if owning > 51% of token.
     address public enterprise; // only enterprise can pay the Smart Contract.
 
-    address[] public stakeholders; // Array of stakeholders. Government can addStakeholder or removeStakeholder. Recipient of token needs to be isStakeholder = true to be able to receive token. mainPropertyOwner & Government are stakeholder by default.
+    address[] public stakeholders; // Array of stakeholders. Government can addStakeholder or removeStakeholder. Recipient of token needs to be isStakeholder = true to be able to receive token. mainInvoiceOwner & Government are stakeholder by default.
 
     mapping(address => uint256) public revenues; // Distributed revenue account ballance for each stakeholder including gov.
     mapping(address => uint256) public shares; // Addresses mapped to token ballances.
@@ -48,9 +48,9 @@ contract realEstate {
         uint256 shares
     );
     event ChangedTax(uint256 NewTax);
-    event MainPropertyOwner(address NewMainPropertyOwner);
+    event MainInvoiceOwner(address NewMainInvoiceOwner);
     event NewStakeHolder(address StakeholderAdded);
-    event CurrentlyEligibletoPayRent(address Tenant);
+    event CurrentlyEligibletoPayFull(address enterprise);
     event PrePayRentLimit(uint8 Months);
     event AvgBlockTimeChangedTo(uint8 s);
     event RentPer30DaySetTo(uint256 WEIs);
@@ -83,28 +83,28 @@ contract realEstate {
     );
 
     constructor(
-        string memory _propertyID,
-        string memory _propertySymbol,
-        address _mainPropertyOwner,
+        string memory _invoiceID,
+        string memory _invoiceSymbol,
+        address _mainInvoiceOwner,
         address _gov,
         uint8 _tax,
         uint8 _avgBlockTime
-    ) {
-        shares[_mainPropertyOwner] = 100; //one main Shareholder to be declared by government to get all initial shares.
+    ) payable {
+        shares[_mainInvoiceOwner] = 100; //one main Shareholder to be declared by government to get all initial shares.
         totalSupply = 100; //supply fixed to 100 for now, Can also work with 10, 1000, 10 000...
         totalSupply2 = totalSupply**2; //above to the power of 2
-        name = _propertyID;
+        name = _invoiceID;
         decimals = 0;
-        symbol = _propertySymbol;
+        symbol = _invoiceSymbol;
         tax = _tax; // set tax for deduction upon rental payment
-        mainPropertyOwner = _mainPropertyOwner;
+        mainInvoiceOwner = address(0);
         gov = _gov;
-        stakeholders.push(gov); //gov & mainPropertyOwner pushed to stakeholdersarray upon construction to allow payout and transfers
-        stakeholders.push(mainPropertyOwner);
-        allowed[mainPropertyOwner][gov] = MAX_UINT256; //government can take all token from mainPropertyOwner with seizureFrom
-        avgBlockTime = _avgBlockTime; // 13s recomended. Our representation of Time. Can be changed by gov with function SetAvgBlockTime
+        stakeholders.push(gov); //gov & mainInvoiceOwner pushed to stakeholdersarray upon construction to allow payout and transfers
+        stakeholders.push(mainInvoiceOwner);
+        allowed[mainInvoiceOwner][gov] = MAX_UINT256; //government can take all token from mainInvoiceOwner with seizureFrom
+        avgBlockTime = _avgBlockTime; // 13s recomended.  representation of Time. Can be changed by gov with function SetAvgBlockTime
         blocksPer30Day = (60 * 60 * 24 * 30) / avgBlockTime;
-        rentalLimitMonths = 12; //rental limit in months can be changed by mainPropertyOwner
+        rentalLimitMonths = 12; //rental limit in months can be changed by mainInvoiceOwner
         rentalLimitBlocks = rentalLimitMonths * blocksPer30Day;
     }
 
@@ -115,7 +115,7 @@ contract realEstate {
         _;
     }
     modifier onlyPropOwner() {
-        require(msg.sender == mainPropertyOwner);
+        require(msg.sender == mainInvoiceOwner);
         _;
     }
     modifier isMultipleOf() {
@@ -131,13 +131,15 @@ contract realEstate {
     // Define functions in this section
 
     //viewable functions
-    // fuction to set mainPropertyOwner
-    function setMainPropertyOwner(address _newMainPropertyOwner)
-        public
-        onlyGov
-    {
-        mainPropertyOwner = _newMainPropertyOwner;
-        emit MainPropertyOwner(mainPropertyOwner);
+    // fuction to set mainInvoiceOwner
+    function setMainInvoiceOwner(address _newMainInvoiceOwner) public onlyGov {
+        mainInvoiceOwner = _newMainInvoiceOwner;
+        shares[mainInvoiceOwner] = 100;
+        stakeholders.push(mainInvoiceOwner);
+        allowed[mainInvoiceOwner][gov] = MAX_UINT256;
+        banStakeholder(address(0));
+
+        emit MainInvoiceOwner(mainInvoiceOwner);
     }
 
     function showSharesOf(address _owner)
@@ -250,24 +252,24 @@ contract realEstate {
         return true;
     }
 
-    //mainPropertyOwner functions
+    //mainInvoiceOwner functions
 
-    function canPayRent(address _tenant) public onlyPropOwner {
+    function canPayFull(address _enterprise) public onlyPropOwner {
         //decide who can pay rent in the future
-        enterprise = _tenant;
-        emit CurrentlyEligibletoPayRent(enterprise);
+        enterprise = _enterprise;
+        emit CurrentlyEligibletoPayFull(enterprise);
     }
 
     function limitadvancedrent(uint8 _monthstolimit) public onlyPropOwner {
-        //mainPropertyOwner can decide how many months in advance the property can be rented out max
+        //mainInvoiceOwner can decide how many months in advance the property can be rented out max
         rentalLimitBlocks = _monthstolimit * blocksPer30Day;
         emit PrePayRentLimit(_monthstolimit);
     }
 
-    function setRentper30Day(uint256 _rent) public onlyPropOwner {
-        //mainPropertyOwner can set rentPer30Day in WEI
-        rentPer30Day = _rent;
-        emit RentPer30DaySetTo(rentPer30Day);
+    function setAmountper30Day(uint256 _amount) public onlyPropOwner {
+        //mainInvoiceOwner can set amountPer30Day in WEI
+        amountPer30Day = _amount;
+        emit RentPer30DaySetTo(amountPer30Day);
     }
 
     //Stakeholder functions
@@ -322,33 +324,32 @@ contract realEstate {
         //claim main property ownership
         require(
             shares[msg.sender] > (totalSupply / 2) &&
-                msg.sender != mainPropertyOwner,
-            "Error. You do not own more than 50% of the property tokens or you are the main owner allready"
+                msg.sender != mainInvoiceOwner,
+            "Error. You do not own more than 50% of the invoice tokens or you are the main owner allready"
         );
-        mainPropertyOwner = msg.sender;
-        emit MainPropertyOwner(mainPropertyOwner);
+        mainInvoiceOwner = msg.sender;
+        emit MainInvoiceOwner(mainInvoiceOwner);
     }
 
     function withdraw() public payable {
         //revenues can be withdrawn from individual shareholders (government can too withdraw its own revenues)
         uint256 revenue = revenues[msg.sender];
         revenues[msg.sender] = 0;
-
-        payable((msg.sender)).transfer(revenue);
-
-        emit Withdrawal(msg.sender, revenue);
+        (bool sent, ) = msg.sender.call{value: revenue}("");
+        require(sent, "Failed to send Ether");
+        // emit Withdrawal(msg.sender, revenue);
     }
 
     //renter function
 
-    function payRent(uint8 _months)
+    function payFull(uint8 _months)
         public
         payable
         isMultipleOf
         eligibleToPayRent
     {
         //needs to be eligible to pay rent
-        uint256 _rentdue = _months * rentPer30Day;
+        uint256 _rentdue = _months * amountPer30Day;
         uint256 _additionalBlocks = _months * blocksPer30Day;
         require(
             msg.value == _rentdue &&
@@ -400,8 +401,8 @@ contract realEstate {
     }
 
     //falback
-    receive() external payable {
-        //fallback function returns ether back to origin
-        payable(msg.sender).transfer(msg.value);
-    }
+    receive() external payable {}
+
+    fallback() external payable {} //fallback function returns ether back to origin
+    // payable(msg.sender).transfer(msg.value);
 }

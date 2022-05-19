@@ -17,12 +17,12 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const { deployer } = await getNamedAccounts();
   const chainId = await getChainId();
 
-  await deploy("realEstate", {
+  await deploy("Kenobi", {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
     args: [
-      "Invoice",
-      "Inv",
+      "Invoice69",
+      "INV",
       "0x255454382b1fb0eb86C45080551e0C083d267669",
       "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       10,
@@ -33,7 +33,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   });
 
   // Getting a previously deployed contract
-  const YourContract = await ethers.getContract("realEstate", deployer);
+  const YourContract = await ethers.getContract("Kenobi", deployer);
   /*  await YourContract.setPurpose("Hello");
   
     To take ownership of yourContract using the ownable library uncomment next line and add the 
@@ -83,4 +83,4 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   //   console.error(error);
   // }
 };
-module.exports.tags = ["realEstate"];
+module.exports.tags = ["Kenobi"];
