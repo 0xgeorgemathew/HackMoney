@@ -388,6 +388,8 @@ function App(props) {
             provider={mainnetProvider}
             address={address}
             blockExplorer="https://etherscan.io/"
+            contractConfig={contractConfig}
+            chainId={1}
           />
         </Route>
         <Route path="/subgraph">
