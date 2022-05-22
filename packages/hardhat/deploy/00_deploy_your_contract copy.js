@@ -23,8 +23,8 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     args: [
       "Invoice69",
       "INV",
-      "0x255454382b1fb0eb86C45080551e0C083d267669",
-      "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "0x7cAb1990de608084D5865aa87EBe4947Cf0A6700",
+      "0x1012432aE0043A58aEc074B5F7EE77EBa88caD9f",
       10,
       13,
     ],

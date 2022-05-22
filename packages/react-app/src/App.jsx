@@ -59,7 +59,7 @@ const initialNetwork = NETWORKS.localhost; // <------- select your target fronte
 const DEBUG = true;
 const NETWORKCHECK = true;
 const USE_BURNER_WALLET = true; // toggle burner wallet feature
-const USE_NETWORK_SELECTOR = false;
+const USE_NETWORK_SELECTOR = true;
 
 const web3Modal = Web3ModalSetup();
 
@@ -73,7 +73,7 @@ const providers = [
 function App(props) {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
   // reference './constants.js' for other networks
-  const networkOptions = [initialNetwork.name, "mainnet", "rinkeby"];
+  const networkOptions = [initialNetwork.name, "mainnet", "goerli"];
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
@@ -167,7 +167,8 @@ function App(props) {
   ]);
 
   // keep track of a variable from the contract in the local React state:
-  const purpose = useContractReader(readContracts, "YourContract", "purpose");
+  const purpose = useContractReader(readContracts, "Kenobi", "mainInvoiceOwner");
+  const purpose1 = useContractReader(readContracts, "Kenobi", "revenues[msg.sender]");
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -302,6 +303,9 @@ function App(props) {
         <Menu.Item key="/mainnetdai">
           <Link to="/mainnetdai">Mainnet DAI</Link>
         </Menu.Item>
+        <Menu.Item key="/mainetweth">
+          <Link to="/mainetweth">Mainnet WETH</Link>
+        </Menu.Item>
         <Menu.Item key="/subgraph">
           <Link to="/subgraph">Subgraph</Link>
         </Menu.Item>
@@ -328,6 +332,7 @@ function App(props) {
             blockExplorer={blockExplorer}
             contractConfig={contractConfig}
           />
+
         </Route>
         <Route path="/hints">
           <Hints
@@ -349,12 +354,14 @@ function App(props) {
             writeContracts={writeContracts}
             readContracts={readContracts}
             purpose={purpose}
+
           />
         </Route>
         <Route path="/mainnetdai">
+
           <Contract
-            name="DAI"
-            customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.DAI}
+            name="BAB"
+            customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.BAB}
             signer={userSigner}
             provider={mainnetProvider}
             address={address}
@@ -372,6 +379,16 @@ function App(props) {
               blockExplorer="https://etherscan.io/"
             />
             */}
+        </Route>
+        <Route path="/mainetweth">
+          <Contract
+            name="WETH"
+            customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.WETH}
+            signer={userSigner}
+            provider={mainnetProvider}
+            address={address}
+            blockExplorer="https://etherscan.io/"
+          />
         </Route>
         <Route path="/subgraph">
           <Subgraph

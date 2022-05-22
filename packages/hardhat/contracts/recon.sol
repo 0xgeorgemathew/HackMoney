@@ -254,7 +254,7 @@ contract Kenobi {
 
     //mainInvoiceOwner functions
 
-    function canPayFull(address _enterprise) public onlyPropOwner {
+    function addFullPayer(address _enterprise) public onlyPropOwner {
         //decide who can pay rent in the future
         enterprise = _enterprise;
         emit CurrentlyEligibletoPayFull(enterprise);
