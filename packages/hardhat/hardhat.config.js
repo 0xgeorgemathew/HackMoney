@@ -67,6 +67,9 @@ module.exports = {
   networks: {
     localhost: {
       url: "http://localhost:8545",
+      // accounts: {
+      //   mnemonic: mnemonic(),
+      // },
       /*      
         notice no mnemonic here? it will just use account 0 of the hardhat node to deploy
         (you can put in a mnemonic here to set the deployer locally)
@@ -139,7 +142,7 @@ module.exports = {
       },
     },
     mumbai: {
-      url: "https://rpc-mumbai.maticvigil.com",
+      url: "https://polygon-mumbai.g.alchemy.com/v2/ksbgybLz-D0ku12CFi9vdYXVoeQbaHhw",
       // url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXX/polygon/mumbai", // <---- YOUR MORALIS ID! (not limited to infura)
       gasPrice: 3200000000,
       accounts: {
@@ -261,6 +264,15 @@ module.exports = {
   },
   solidity: {
     compilers: [
+      {
+        version: "0.8.13",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
       {
         version: "0.8.4",
         settings: {

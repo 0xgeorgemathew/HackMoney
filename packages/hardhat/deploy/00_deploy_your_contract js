@@ -31,9 +31,32 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     log: true,
     waitConfirmations: 5,
   });
+  const KenobiMainContract = await ethers.getContract("Kenobi", deployer);
+  console.log("KenobiMainContract deployed to:", KenobiMainContract.address);
+
+  await deploy("KenobiToken", {
+    // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
+    from: deployer,
+
+    log: true,
+    waitConfirmations: 5,
+  });
+  const KenobiTokenContract = await ethers.getContract("KenobiToken", deployer);
+  console.log("KenobiToken deployed to:", KenobiTokenContract.address);
+
+  await deploy("KenobiVault", {
+    from: deployer,
+    args: [KenobiTokenContract.address], // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
+
+    log: true,
+    waitConfirmations: 5,
+  });
 
   // Getting a previously deployed contract
-  const YourContract = await ethers.getContract("Kenobi", deployer);
+
+  const KenobiVaultContract = await ethers.getContract("KenobiVault", deployer);
+  console.log("KenobiVaultContract deployed to:", KenobiVaultContract.address);
+
   /*  await YourContract.setPurpose("Hello");
   
     To take ownership of yourContract using the ownable library uncomment next line and add the 
@@ -83,4 +106,4 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   //   console.error(error);
   // }
 };
-module.exports.tags = ["Kenobi"];
+module.exports.tags = ["Kenobi", "KenobiToken", "KenobiVault"];

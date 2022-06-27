@@ -24,6 +24,7 @@
     "compile": "yarn workspace @scaffold-eth/hardhat compile",
     "deploy": "yarn workspace @scaffold-eth/hardhat deploy",
     "verify": "yarn workspace @scaffold-eth/hardhat verify",
+    "verigon": "yarn workspace @scaffold-eth/hardhat verigon",
     "watch": "yarn workspace @scaffold-eth/hardhat watch",
     "accounts": "yarn workspace @scaffold-eth/hardhat accounts",
     "balance": "yarn workspace @scaffold-eth/hardhat balance",

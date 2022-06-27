@@ -1759,7 +1759,7 @@ module.exports = {
   1: {
     contracts: {
       BAB: {
-        address: "0xebC912b213a66e7bf70e1d322aDDdd7Fe624588b",
+        address: "0xD4a5b5fcB561dAF3aDF86F8477555B92FBa43b5F",
         abi: BABABI,
       },
       WETH: {

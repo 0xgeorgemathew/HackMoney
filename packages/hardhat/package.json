@@ -31,7 +31,7 @@
   },
   "scripts": {
     "chain": "hardhat node --network hardhat --no-deploy",
-    "fork": "hardhat node --no-deploy --network hardhat --fork https://eth-mainnet.alchemyapi.io/v2/yj_wpuXbVa_BsBLl_z09SYIGebY0Am5R",
+    "fork": "hardhat node --no-deploy --network hardhat --fork https://eth-mainnet.alchemyapi.io/v2/_R8mWgdnZwqjN2I_f_wi5GFDoc-KbI6t",
     "test": "hardhat test --network hardhat",
     "compile": "hardhat compile",
     "deploy": "hardhat deploy --export-all ../react-app/src/contracts/hardhat_contracts.json",
@@ -42,6 +42,7 @@
     "send": "hardhat send",
     "generate": "hardhat generate",
     "account": "hardhat account",
-    "verify": "hardhat etherscan-verify --api-key UYDBUMHBPJX3B68I8UZ58C2IK3G7ZW3I6Z"
+    "verify": "hardhat etherscan-verify --api-key UYDBUMHBPJX3B68I8UZ58C2IK3G7ZW3I6Z",
+    "verigon": "hardhat etherscan-verify --api-key MERWPDDCPJ3STI7MYX826G955XE3A4BDQA"
   }
 }

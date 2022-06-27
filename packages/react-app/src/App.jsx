@@ -53,7 +53,7 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const initialNetwork = NETWORKS.mumbai; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -73,7 +73,7 @@ const providers = [
 function App(props) {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
   // reference './constants.js' for other networks
-  const networkOptions = [initialNetwork.name, "mainnet", "goerli"];
+  const networkOptions = [initialNetwork.name, "mumbai", "localhost", "goerli"];
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
@@ -168,7 +168,7 @@ function App(props) {
 
   // keep track of a variable from the contract in the local React state:
   const purpose = useContractReader(readContracts, "Kenobi", "mainInvoiceOwner");
-  const purpose1 = useContractReader(readContracts, "Kenobi", "revenues[msg.sender]");
+
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -294,6 +294,12 @@ function App(props) {
         <Menu.Item key="/debug">
           <Link to="/debug">Debug Contracts</Link>
         </Menu.Item>
+        <Menu.Item key="/debugkenobitoken">
+          <Link to="/debugkenobitoken">Kenobi Token </Link>
+        </Menu.Item>
+        <Menu.Item key="/debugkenobivault">
+          <Link to="/debugkenobivault">Kenobi vault </Link>
+        </Menu.Item>
         <Menu.Item key="/hints">
           <Link to="/hints">Hints</Link>
         </Menu.Item>
@@ -301,7 +307,10 @@ function App(props) {
           <Link to="/exampleui">ExampleUI</Link>
         </Menu.Item>
         <Menu.Item key="/mainnetdai">
-          <Link to="/mainnetdai">Mainnet DAI</Link>
+          <Link to="/mainnetdai">Mainnet BAB</Link>
+        </Menu.Item>
+        <Menu.Item key="/mainetdaireal">
+          <Link to="/mainetdaireal">Mainnet DAI</Link>
         </Menu.Item>
         <Menu.Item key="/mainetweth">
           <Link to="/mainetweth">Mainnet WETH</Link>
@@ -325,6 +334,32 @@ function App(props) {
 
           <Contract
             name="Kenobi"
+            price={price}
+            signer={userSigner}
+            provider={localProvider}
+            address={address}
+            blockExplorer={blockExplorer}
+            contractConfig={contractConfig}
+          />
+
+
+        </Route>
+
+        <Route exact path="/debugkenobitoken">
+          <Contract
+            name="KenobiToken"
+            price={price}
+            signer={userSigner}
+            provider={localProvider}
+            address={address}
+            blockExplorer={blockExplorer}
+            contractConfig={contractConfig}
+          />
+
+        </Route>
+        <Route exact path="/debugkenobivault">
+          <Contract
+            name="KenobiVault"
             price={price}
             signer={userSigner}
             provider={localProvider}
@@ -384,6 +419,18 @@ function App(props) {
           <Contract
             name="WETH"
             customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.WETH}
+            signer={userSigner}
+            provider={mainnetProvider}
+            address={address}
+            blockExplorer="https://etherscan.io/"
+            contractConfig={contractConfig}
+            chainId={1}
+          />
+        </Route>
+        <Route path="/mainetdaireal">
+          <Contract
+            name="DAIX"
+            customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.DAI}
             signer={userSigner}
             provider={mainnetProvider}
             address={address}
